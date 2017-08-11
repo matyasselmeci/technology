@@ -13,6 +13,7 @@ pages:
   - Meeting Notes: 'meetings.md'
   - Software:
     - Migrating Documents to Markdown: 'software/markdown-migration.md'
+    - Repository Management: 'software/repository-management.md'
   - Release:
     - How to Cut a Release: 'release/cut-sw-release.md'
     - How to Cut a Data Release: 'release/cut-data-release.md'
