@@ -8,17 +8,13 @@ Public repositories
 
 We host four public-facing repositories at [repo.grid.iu.edu](http://repo.grid.iu.edu/):
 
-development  
-This repository is the bleeding edge. Installing from this repository may cause the host to stop functioning, and we will not assist in undoing any damage.
+-   development: This repository is the bleeding edge. Installing from this repository may cause the host to stop functioning, and we will not assist in undoing any damage.
 
-testing  
-This repository contains software ready for testing. If you install packages from here, they may be buggy, but we will provide limited assistance in providing a migration path to a fixed verison.
+-   testing: This repository contains software ready for testing. If you install packages from here, they may be buggy, but we will provide limited assistance in providing a migration path to a fixed verison.
 
-release  
-This repository contains software that we are willing to support and can be used by the general community.
+-   release: This repository contains software that we are willing to support and can be used by the general community.
 
-contrib  
-RPMs contributed from outside the OSG.
+-   contrib: RPMs contributed from outside the OSG.
 
 These repos are updated by the `mash` script running on `repo1.grid.iu.edu` and `repo2.grid.iu.edu`.
 
@@ -27,11 +23,9 @@ Internal repositories
 
 In addition to the public repositories above, we host two repositories on `koji.chtc.wisc.edu`. These are updated shortly after jobs are built into them or tagged into them. They are technically publicly accessible, but we discourage the public from using them.
 
-minefield  
-This repository is a copy of development above.
+-   minefield: This repository is a copy of development above.
 
-prerelease  
-This repository is a staging area for software that is slated to be in the next release.
+-   prerelease: This repository is a staging area for software that is slated to be in the next release.
 
 These repos are updated by the `kojira` daemon running on `koji.chtc.wisc.edu`.
 
