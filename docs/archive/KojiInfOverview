@@ -1,0 +1,71 @@
+---+ Koji Infrastructure Overview
+
+---++ In Madison
+
+---+++ In WID
+   * _koji.chtc.wisc.edu_ is the main Koji server. It runs:
+      * =koji-hub= (httpd/mod_python service) -- controls everything else
+      * =koji-web= (httpd/mod_python service) -- provides the web interface to koji-hub
+      * =kojid= (standalone daemon) -- builds packages
+      * =kojira= (standalone daemon) -- creates tasks to regen repos automatically
+      * =rsyncd= (via xinetd)
+      * =puppetd= (cron job)
+      * (also stores !RPMs in its =/mnt/koji= directory)
+   * _db-01.batlab.org_ is the database server. It runs:
+      * =postgres= (standalone daemon)
+      * =rsyncd= (via xinetd)
+      * =puppetd= (cron job)
+      * (others)
+   * _host-3.chtc.wisc.edu_ is a backup server. It runs:
+      * =rsync= (cron job)
+      * =puppetd= (cron job)
+      * (others)
+   * _wid-service-1.chtc.wisc.edu_ is a Puppet Master. It runs:
+      * =puppetmaster= (standalone daemon)
+      * (others)
+
+---+++ In CS (3370A)
+   * _osghost.chtc.wisc.edu_ is a VM host. It runs:
+      * _kojibuilder2.chtc.wisc.edu_ and _kojibuilder3.chtc.wisc.edu_ are builder VMs. Each runs:
+         * =kojid= (standalone daemon) -- builds packages
+         * =puppetd= (cron job)
+
+---++ In Indiana
+
+   * _repo1.grid.iu.edu_, _repo2.grid.iu.edu_ and _repo-itb.grid.iu.edu_ are repo hosts. Each runs:
+      * =mash= (cron job) -- pulls !RPMs from a =koji-hub=
+      * (others)
+   * _repo.grid.iu.edu_ is a DNS alias pointing to either _repo1_ or _repo2_
+
+---++ Lines of Communication
+
+   * =koji-web= provides a web interface to =koji-hub=
+   * =koji-hub= sends jobs to all =kojid= daemons and gets back the results
+   * =kojira= sends requests to =koji-hub= to create tasks
+   * =koji-hub= talks directly to =postgres= for all metadata
+   * =koji-hub= writes to and reads from =/mnt/koji=
+   * =mash= pulls !RPMs from =/mnt/koji= and communicates with =koji-hub= to get tag information
+   * =puppetd= on all Madison machines pulls Puppet configuration from =puppetmaster= on _wid-service-1_
+   * =rsync= on _host-3.chtc.wisc.edu_ pulls files from =rsyncd= on _koji.chtc.wisc.edu_ and _db-01.batlab.org_
+
+---++ Management
+
+Managed by the GOC:
+   * _repo1.grid.iu.edu_
+   * _repo2.grid.iu.edu_
+   * _repo.grid.iu.edu_
+   * _repo-itb.grid.iu.edu_
+
+Fully managed by !CHTC Infrastructure:
+   * _db-01.batlab.org_
+   * _host-3.chtc.wisc.edu_
+   * _wid-service-1.chtc.wisc.edu_
+
+Management split between !CHTC infrastructure and OSG-Software:
+   * _koji.chtc.wisc.edu_
+   * _kojibuilder2.chtc.wisc.edu_
+   * _kojibuilder3.chtc.wisc.edu_
+   * _osghost.chtc.wisc.edu_
+(In general, !CHTC-inf takes care of accounts, firewalls, other basic config, and OSG takes care of the Koji services)
+
+
