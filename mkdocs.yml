@@ -12,6 +12,7 @@ pages:
   - Contact Us: 'contact.md'
   - Meeting Notes: 'meetings.md'
   - Software:
+    - Koji Infrastructure Overview: 'software/koji-inf-overview.md'
     - Migrating Documents to Markdown: 'software/markdown-migration.md'
     - Repository Management: 'software/repository-management.md'
   - Release:
