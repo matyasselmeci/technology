@@ -4,9 +4,130 @@ OSG Build Tools
 
 This page documents the tools used for RPM development for the OSG Software Stack. See [the RPM development guide](../software/rpm-development-guide.md) for the principles on which these tools are based.
 
-The tools are distributed in the `osg-build` RPM in our repositories, but can also be used from a Git clone of [opensciencegrid/osg-build on GitHub](https://github.com/opensciencegrid/osg-build).
+The tools are available in Git in [opensciencegrid/osg-build on GitHub](https://github.com/opensciencegrid/osg-build).
+See installation documentation below.
 
 This page is up-to-date as of `osg-build` version 1.14.1.
+
+
+Quick start with Singularity/Apptainer
+--------------------------------------
+This quick start guide shows how to use the OSG build tools via Apptainer/Singularity.
+This assumes you will use Kerberos for authentication, with UW-Madison credentials.
+For this, you will need to be inside the UW Campus network, either via campus wifi or VPN.
+
+In addition, this assumes that the repository you want to build packages from is from a subdirectory under your home directory.
+If not, pass the appropriate `--bind` (`-B`) argument to the `apptainer run` command.
+
+The image is available from hub.opensciencegrid.org.  Pull the image and run it:
+```
+apptainer pull oras://hub.opensciencegrid.org/osg-htc/osg-build:v2 osg-build.sif
+apptainer run osg-build.sif
+```
+you will be in a shell inside the image.
+
+Set up your configuration for accessing the OSG Koji environment.
+```
+osg-koji setup
+```
+Select Kerberos as your auth method.
+Use `kinit` to get a credential:
+```
+kinit <username>@AD.WISC.EDU
+```
+replacing `<username>` with the name of your UW NetID.
+
+Verify that you can successfully authenticate to Koji:
+```
+osg-koji hello
+```
+
+If that succeeds, you will be ready to use the rest of the `osg-build` and `osg-koji` commands.
+
+Note: the `mock` command does not work in Apptainer/Singularity due to permissions issues.
+For testing builds, use `osg-build koji --scratch` instead.
+
+
+Installation into a Linux system
+--------------------------------
+
+You may install the software locally, either via `pip` or via a script distributed by an RPM.
+If using `pip`, you will need to install some dependencies by hand.
+
+
+### Install as root via OSG RPM (EL8, EL9)
+
+The OSG 23-internal repositories contain a package called "osg-build-deps".
+[Install the OSG 23 repositories](https://osg-htc.org/docs/common/yum/).
+
+Then, install osg-build-deps:
+```
+yum install --enablerepo=osg-internal-development osg-build-deps
+```
+This will pull in the dependencies necessary to run the OSG Build Tools.
+Then, to install the OSG Build Tools themselves into `/usr/local`, run
+```
+install-osg-build.sh
+```
+This will clone osg-build into `/usr/local/src/osg-build` and install the software under the `/usr/local` tree.
+
+
+### Install via pip (EL8, EL9, Ubuntu, others)
+
+To use Kerberos authentication you will need the client tools to run `kinit`.
+On EL8/EL9, run:
+```
+yum install krb5-workstation
+```
+On Ubuntu, run:
+```
+apt install krb5-user
+```
+
+Before installing via pip, you will need to install the `requests-gssapi` library by hand because it contains compiled binaries.
+
+On EL8/EL9, run
+```
+yum install python3-requests-gssapi
+```
+on Ubuntu 24.04, run
+```
+apt install python3-requests-gssapi
+```
+If `requests-gssapi` is not available, you will have to compile it by hand; see below.
+
+To install the OSG Build Tools themselves, run:
+
+```
+pip install --user git+https://github.com/opensciencegrid/osg-build@V2-branch
+```
+
+!!! note
+    If you installed requests-gssapi via RPM/Deb, and you want to run osg-build in a virtualenv or via pipx,
+    pass `--system-site-packages` when creating the virtualenv or running `pipx install`.
+
+
+#### Building requests-gssapi from source
+
+If the `requests-gssapi` library is not available or you don't want to install it via a package manager,
+you must install the dependencies that will allow pip to build it from source.
+
+On EL8/EL9 run:
+```
+yum install gcc make python3-devel krb5-devel
+```
+
+On Ubuntu run
+```
+apt install gcc make libpython-dev libkrb5-dev
+```
+
+Afterwards, pip install the OSG Build Tools as previously:
+
+```
+pip install --user git+https://github.com/opensciencegrid/osg-build@V2-branch
+```
+
 
 The tools
 ---------
