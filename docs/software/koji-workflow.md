@@ -1,7 +1,7 @@
 Koji Workflow
 =============
 
-This covers the basics of using and understanding the [OSG Koji](https://koji.opensciencegrid.org/koji) instance. It is meant primarily for OSG Software team members who need to interact with the service.
+This covers the basics of using and understanding the [OSG Koji](https://koji.osg-htc.org/koji) instance. It is meant primarily for OSG Software team members who need to interact with the service.
 
 Terminology
 -----------
@@ -53,144 +53,20 @@ Obtaining Access
 
 Building OSG packages in Koji requires these privileges:
 
-- access to the OSG subversion repository at https://vdt.cs.wisc.edu/svn
-- access to a login node at UW Comp Sci such as `moria.cs.wisc.edu`
-- access to the Koji service via a grid user certificate
+-   access to the software-packaging Git repository at https://github.com/osg-htc/software-packaging
+-   access to `osgsw-ap.chtc.wisc.edu` for uploading to the upstream sources directory
+-   access to Koji via a Kerberos credential
 
-See the old [user certificates document](https://github.com/osg-htc/docs/blob/07ae815506a61e8e86485469ea3ddc0e93eba9ea/docs/security/user-certs.md)
-for information about how to get a user certificate.
-
-Open a Freshdesk ticket with the subject "Requesting access to Koji" with the following information:
-- top 3 username choices for the login node and SVN
-  (8 characters max, no punctuation)
-- the DN of your user certificate
-
-Assign the ticket to the Software team.
+Send email to <help@osg-htc.org> with the subject "Requesting access to Koji" with the following information:
+-   your GitHub username
+-   your Kerberos principal
 
 
 Initial Setup
 -------------
 
 You will be using the [OSG Build Tools](../software/osg-build-tools.md) to interact with Koji.
-You can use them on either your own machine or on your UW Comp Sci login node such as `moria`.
-
-
-### Setting up on moria
-
-Perform the following to set up the build tools on `moria`:
-
-1.  Clone the osg-build git repo
-
-        :::console
-        you@moria$ git clone https://github.com/opensciencegrid/osg-build $HOME/osg-build
-
-1.  Set your `$PATH`:
-
-        :::console
-        you@moria$ export PATH=$PATH:$HOME/osg-build
-        you@moria$ export PATH=$PATH:/p/vdt/workspace/quilt/bin
-        you@moria$ export PATH=$PATH:/p/vdt/workspace/tarball-client/stable/sys
-
-1.  Copy your user certificate and key into `$HOME/.globus/usercert.pem` and `$HOME/.globus/userkey.pem`.
-    Make sure `userkey.pem` is only readable by yourself.
-
-1.  (Optional) Load your certificate into your browser.
-    This will allow you to make some changes using the [Koji web interface](https://koji.opensciencegrid.org/koji).
-
-1.  Set up the OSG Koji config
-
-        :::console
-        you@moria$ osg-koji setup
-
-    Answer "yes" to all questions.
-
-
-### Setting up on your own host
-
-This requires an Enterprise Linux 6 or 7 host.
-
-1.  Install the [OSG YUM repositories](https://osg-htc.org/docs/common/yum/)
-
-1.  If using OSG 3.5 or newer, enable the `devops` repository.
-
-1.  Install osg-build and its dependencies:
-
-        :::console
-        you@host$ sudo yum install osg-build
-
-1.  Install a program for getting grid certificates
-
-        :::console
-        you@host$ sudo yum install globus-proxy-utils
-
-    !!! note
-        If you already have `voms-clients-cpp` or `voms-clients-java` installed,
-        you can use `voms-proxy-init -rfc` instead of `grid-proxy-init`,
-        and don't need to install `globus-proxy-utils`.
-
-1.  (Optional) If you want to do mock builds (these are local builds in a chroot), add yourself to the `mock` user group:
-
-        :::console
-        you@host$ sudo usermod -a -G mock $USER
-
-1.  Copy your user certificate and key into `$HOME/.globus/usercert.pem` and `$HOME/.globus/userkey.pem`.
-    Make sure `userkey.pem` is only readable by yourself.
-
-    !!! note
-        If you are using a certificate from SAML or Kerberos credentials, such as with `cigetcert` or `kx509`,
-        skip this step.
-
-1.  (Optional) Load your certificate into your browser.
-    This will allow you to make some changes using the [Koji web interface](https://koji.opensciencegrid.org/koji).
-
-1.  Set up the OSG Koji config
-
-        :::console
-        you@moria$ osg-koji setup
-
-    Answer "yes" to all questions.
-
-
-Authenticating to Koji
-----------------------
-
-To use the OSG Build tools and the Koji command-line client, you will need to make sure you can authenticate to Koji.
-This involves getting a grid proxy certificate.
-Do one of the following:
-
--   **On moria**<br>
-    Run `osgrun grid-proxy-init -bits 2048` and type your grid certificate password.
-    If you cannot find `osgrun`, ensure you have `/p/vdt/workspace/tarball-client/stable/sys` in your `$PATH`.
-
--   **On your local machine**<br>
-    Run `grid-proxy-init -bits 2048` (if using `globus-proxy-utils`) or `voms-proxy-init -rfc -bits 2048` (if using `voms-clients`)
-    and type your grid certificate password.
-
--   **On your local machine using SAML or Kerberos-based credentials**<br>
-    Run `cigetcert` or `kx509` and perform whatever identification challenges you are asked.
-
-
-To verify your login access and permissions, run:
-```console
-you@host$ osg-koji list-permissions --mine
-```
-You should see a list of your permissions if successful, or an error message if unsuccessful.
-
-
-!!! note
-    If you see the error `SSL: EE_KEY_TOO_SMALL`, OpenSSL may be rejecting your proxy because it is too short.
-    Be sure to request at least 2048 bits by passing `-bits 2048` to `grid-proxy-init` or `voms-proxy-init`.
-    You can check the key length by examining your proxy:
-
-        :::console
-        you@host$ openssl x509 -in /tmp/x509up_u$(id -u) -noout -text
-
-    and looking at the "Subject Public Key Info" which might look like
-
-        Subject Public Key Info:
-            Public Key Algorithm: rsaEncryption
-                RSA Public-Key: (2048 bit)
-
+See the installation guide on that page for getting started.
 
 Using Koji
 ----------
@@ -217,19 +93,19 @@ When you do a non-scratch build, it will build with the *osg-el6* and *osg-el7* 
 
 The most recent build results are always shown on the home page of Koji:
 
-<https://koji.opensciencegrid.org/koji/index>
+<https://koji.osg-htc.org/koji/index>
 
 Clicking on a build result brings you to the build information page. A successful build will result in the build page having build logs, RPMs, and a SRPM.
 
 If your build isn't in the recent list, you can use the search box in the upper-right-hand corner. Type the exact package name (or use a wildcard), and it will bring up a list of all builds for that package. You can find your build from there. For example, the "lcmaps" package page is here:
 
-<https://koji.opensciencegrid.org/koji/packageinfo?packageID=56>
+<https://koji.osg-htc.org/koji/packageinfo?packageID=56>
 
 And the lcmaps-1.6.6-1.1.osg33.el6 build is here:
 
-<https://koji.opensciencegrid.org/koji/buildinfo?buildID=7427>
+<https://koji.osg-htc.org/koji/buildinfo?buildID=7427>
 
-#### Trying our your build
+#### Trying out your build
 
 Because it takes a while for your build to get into one of the regular repositories, it's simplest to download your RPM directly (see the previous section on How to find build results), and install it with:
 
@@ -290,7 +166,7 @@ Once a package has been built, it is added to a tag. We then must turn the tag i
 
 ### Promoting Builds from Development -> Testing
 
-Software contributors can promote any package to testing. Members of the security team can promote ca-cert packages to testing.
+Software team members can promote any package to testing.
 
 To promote from development to testing:
 
