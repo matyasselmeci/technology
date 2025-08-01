@@ -5,9 +5,16 @@ OSG Build Tools
 This page documents the tools used for RPM development for the OSG Software Stack. See [the RPM development guide](../software/rpm-development-guide.md) for the principles on which these tools are based.
 
 The tools are available in Git in [osg-htc/osg-build on GitHub](https://github.com/osg-htc/osg-build).
-See installation documentation below.
+First, acquire the tools via one of the following methods:
+
+- [Apptainer/Singularity](#install-apptainer)
+- [Docker/Podman](#install-docker)
+- Local install
+  - [Rootly install with Make](#install-local-root)
+  - [Install via Pip](#install-local-pip)
 
 
+<a id="install-apptainer"></a>
 Quick start with Apptainer
 --------------------------
 This quick start guide shows how to use the OSG build tools via Apptainer. (Singularity should work too.)
@@ -54,6 +61,56 @@ Note: the `mock` command does not work in Apptainer/Singularity due to permissio
 For testing builds, use `osg-build koji --scratch` instead.
 
 
+<a id="install-docker"></a>
+Quick start with Docker
+-----------------------
+!!!note 
+    The Docker image and helper scripts are a work in progress.
+
+This quick start guide shows how to use the OSG build tools via Docker. (Podman should work too.)
+This assumes you will use Kerberos for authentication with UW-Madison or Fermilab credentials.
+To get UW-Madison Kerberos credentials, you will need to be inside the UW Campus network, either via campus wifi or VPN.
+
+First, pull the GitHub repo hosting the image and helper scripts.
+
+```
+git clone https://github.com/osg-htc/docker-osg-build
+```
+
+Next, run the `initbuilder` script, giving it the directory under which the repo containing the software packaging is.
+For example, if you have your checkout of the [https://github.com/osg-htc/software-packaging](software-packaging repo)
+under `~/software-packaging`, run
+
+```
+cd docker-osg-build
+./initbuilder ~/software-packaging
+```
+Answer the configuration questions from initbuilder.
+
+From then on, use the `osg-build-shell` command to enter into a shell inside the image.
+
+Use `kinit` to get a credential.
+
+For UW-Madison:
+```
+kinit <username>@AD.WISC.EDU
+```
+replacing `<username>` with the name of your UW NetID.
+
+For Fermilab:
+```
+kinit <username>@FNAL.GOV
+```
+replacing `<username>` with your Fermilab user name.
+
+Verify that you can successfully authenticate to Koji:
+```
+osg-koji hello
+```
+
+If that succeeds, you will be ready to use the rest of the `osg-build` and `osg-koji` commands.
+
+
 Installation into a Linux system
 --------------------------------
 
@@ -61,7 +118,8 @@ You may install the software locally, either via `pip` or via a script distribut
 If using `pip`, you will need to install some dependencies by hand.
 
 
-### Install as root via OSG RPM (EL8, EL9)
+<a id="install-local-root"></a>
+### Install as root via OSG RPM (EL8, EL9, EL10)
 
 The OSG 24-internal repositories contain a package called "osg-build-deps".
 [Install the OSG 24 repositories](https://osg-htc.org/docs/common/yum/).
@@ -78,10 +136,11 @@ install-osg-build.sh
 This will clone osg-build into `/usr/local/src/osg-build` and install the software under the `/usr/local` tree.
 
 
-### Install via pip (EL8, EL9, Ubuntu, others)
+<a id="install-local-pip"></a>
+### Install via pip (EL8, EL9, EL10, Ubuntu, others)
 
 To use Kerberos authentication you will need the client tools to run `kinit`.
-On EL8/EL9, run:
+On Enterprise Linux variants and Feodra, run:
 ```
 yum install krb5-workstation
 ```
@@ -92,7 +151,7 @@ apt install krb5-user
 
 Before installing via pip, you will need to install the `requests-gssapi` library by hand because it contains compiled binaries.
 
-On EL8/EL9, run
+On EL8/EL9/EL10, run
 ```
 yum install python3-requests-gssapi
 ```
@@ -318,16 +377,11 @@ Lists the available repositories for the `--repo` argument.
 
 ### osg-koji
 
-This is a wrapper script around the `koji` command line tool. It automatically specifies parameters to access the OSG's koji instance, and forces SSL authentication. It takes the same parameters as `koji` and passes them on.
+This is a wrapper script around the `koji` command line tool.
+It automatically specifies parameters to access the OSG's koji instance.
 
-An additional command, `osg-koji setup` exists, which performs the following tasks:
+An additional command, `osg-koji setup` exists, which sets up koji configuration in `~/.osg-koji`.
 
-1.  Create a koji configuration in `~/.osg-koji`
-2.  Create a CA bundle for verifying the server.
-    Use either files in `/etc/grid-security/certificates`, or (if those are not found), from files downloaded from the DOEGrids and DigiCert sites.
-3.  Create a client cert file. This can be a symlink to your grid proxy, or it can be a file created from your grid public and private key files.
-    The location of those files can be specified by the `--usercert` and `--userkey` arguments.
-    If unspecified, `usercert` defaults to `~/.globus/usercert.pem`, and `userkey` defaults to `~/.globus/userkey.pem`.
 
 ### osg-promote
 
