@@ -4,7 +4,7 @@ OSG Build Tools
 
 This page documents the tools used for RPM development for the OSG Software Stack. See [the RPM development guide](../software/rpm-development-guide.md) for the principles on which these tools are based.
 
-The tools are available in Git in [opensciencegrid/osg-build on GitHub](https://github.com/opensciencegrid/osg-build).
+The tools are available in Git in [osg-htc/osg-build on GitHub](https://github.com/osg-htc/osg-build).
 See installation documentation below.
 
 
@@ -105,7 +105,7 @@ If `requests-gssapi` is not available, you will have to compile it by hand; see 
 To install the OSG Build Tools themselves, run:
 
 ```
-pip install --user git+https://github.com/opensciencegrid/osg-build@V2-branch
+pip install --user git+https://github.com/osg-htc/osg-build@V2-branch
 ```
 
 !!! note
@@ -131,7 +131,7 @@ apt install gcc make libpython-dev libkrb5-dev
 Afterwards, pip install the OSG Build Tools as previously:
 
 ```
-pip install --user git+https://github.com/opensciencegrid/osg-build@V2-branch
+pip install --user git+https://github.com/osg-htc/osg-build@V2-branch
 ```
 
 
@@ -465,7 +465,7 @@ Run `osg-build lint <PACKAGEDIR>`.
 
 1.  `svn commit` your changes in `branches/upcoming`.
 2.  Type `osg-build koji --repo=upcoming <PACKAGEDIR>`
-3.  Wait for the `osg-upcoming-minefield` repos to be regenerated containing the new version of your package. You can run `osg-koji wait-repo osg-upcoming-el<X>-development --build=<PACKAGENAME-VERSION-RELEASE>` and wait for that process to finish (substitute `6` or `7` for *X*). Or, you can just check kojiweb <https://koji.opensciencegrid.org/koji/tasks>.
+3.  Wait for the `osg-upcoming-minefield` repos to be regenerated containing the new version of your package. You can run `osg-koji wait-repo osg-upcoming-el<X>-development --build=<PACKAGENAME-VERSION-RELEASE>` and wait for that process to finish (substitute `6` or `7` for *X*). Or, you can just check kojiweb <https://koji.osg-htc.org/koji/tasks>.
 4.  On your test machine, make sure the `osg-upcoming-minefield` repo is enabled (edit `/etc/yum.repos.d/osg-upcoming-minefield.repo` or `/etc/yum.repos.d/osg-el6-upcoming-minefield.repo`). Clean your cache (`yum clean all; yum clean expire-cache`).
 5.  Install your software, see if it works.
 
