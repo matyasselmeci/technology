@@ -23,10 +23,10 @@ We encourage all interested parties to contribute to OSG Software, and all the i
 
 -   To participate in the packaging community: You must subscribe to the
     [software-discuss@osg-htc.org](https://groups.google.com/u/1/a/osg-htc.org/g/software-discuss/members) email list.
--   To create and edit packages: [Obtain access to VDT SVN](http://vdt.cs.wisc.edu/internal/svn.html).
--   To upload new source tarballs: You must have a cs.wisc.edu account with write access to the VDT source tarball directory. Email the osg-software list and request permission.
--   To build using the OSG's Koji build system: 
-    You must have a [valid personal certificate](../software/user-certs.md) and a Koji account.
+-   To create and edit packages: [Obtain access to the OSG Software-Packaging repo](https://github.com/osg-htc/software-packaging)
+-   To upload new source tarballs: You must have a chtc.wisc.edu account with write access to the OSG source tarball directory.
+    Email the osg-software list and request permission.
+-   To build using the OSG's Koji build system, you must be able to get a Kerberos ticket with either an @AD.WISC.EDU or @FNAL.GOV principal. 
     To obtain the Koji account, email the osg-software list with your cert's DN and request permission.
 
 Development Infrastructure
@@ -41,39 +41,39 @@ This section documents most of what a developer needs to know about our RPM infr
 
 ### Upstream Source Cache
 
-One of our principles (every released package must be reproducible from data stored in our system) creates a potential issue: If we keep all historical source data, especially upstream files like source tarballs and source RPMs, in our revision control system, we may face large checkouts and consequently long checkout and update times.
+Source tarballs and other large files used as inputs to RPM builds are stored in a cache area at CHTC.
+The Koji build system uses this cache; the files are also downloadable from
+<https://sw-upstream.svc.osg-htc.org/upstream/>.
+The files are stored on `osgsw-ap.chtc.wisc.edu`, in the directory `/osgsw/upstream`.
+To upload files to the cache, you must have shell access to the OSG Software Access Point host,
+`osgsw-ap.chtc.wisc.edu`.
+Email the OSG Software Team to request permission.
 
-Our solution is to cache all upstream source files in a separate filesystem area, retaining historical files indefinitely. To avoid tainting upstream files, our policy is to leave them unmodified after download.
 
-#### Locating Files in the Cache
+#### Upstream Cache Organization
 
 Upstream source files are stored in the filesystem as follows:
 
-> `/p/vdt/public/html/upstream/<PACKAGE>/<VERSION>/<FILE>`
+> `/osgsw/upstream/<PACKAGE>/<VERSION>/<FILE>`
 
 where:
 
-| Symbol      | Definition                                                                | Example            |
-|:------------|:--------------------------------------------------------------------------|:-------------------|
-| `<PACKAGE>` | Upstream name of the source package, or some widely accepted form thereof | `ndt`              |
-| `<VERSION>` | Upstream version string used to identify the release                      | `3.6.4`            |
-| `<FILE>`    | Upstream filename itself                                                  | `ndt-3.6.4.tar.gz` |
+| Symbol      | Definition                                                    | Example               |
+|:------------|:--------------------------------------------------------------|:----------------------|
+| `<PACKAGE>` | Name of the source package the file is used in                | `xrootd`              |
+| `<VERSION>` | Version of the sources ("Version" field in the RPM spec file) | `5.8.4`               |
+| `<FILE>`    | Filename used in the Source line in the RPM spec file         | `xrootd-5.8.4.tar.gz` |
 
-The authoritative cache is the VDT webserver, which is fully backed up. The Koji build system uses this cache.
+which leads to the complete example of
+
+> `/osgsw/upstream/xrootd/5.8.4/xrootd-5.8.4.tar.gz`
 
 Upstream source files are referenced from within the revision control system; see below for details.
 
 You will need to know the SHA1 checksum of any files you use from the cache.  Do get it, do:
 ```console
-$ sha1sum /p/vdt/public/html/upstream/<PACKAGE>/<VERSION>/<FILE>
+$ sha1sum /osgsw/upstream/<PACKAGE>/<VERSION>/<FILE>
 ```
-
-#### Contributing Upstream Files
-
-You must make sure that any new upstream source files are cached on the VDT webserver before building the package via Koji. You have two options:
-
--   If you have access to a UW–Madison CSL machine, you can scp the source files directly into the AFS locations using that machine
--   If you do not have such access, write to the osg-software list to find someone who will post the files for you
 
 #### Git/GitHub Hosted Upstream Files
 
@@ -82,50 +82,26 @@ See the [upstream dir info](#upstream) for more information.
 
 ### Revision Control System
 
-All packages that the OSG Software Team releases are checked into our Subversion repository.
+All packages that the OSG Software Team releases are checked into the Software Packaging repository.
 
-#### Subversion Access
+#### Software Packaging Repo Access
 
-Our Subversion repository is located at:
+The OSG Software Packaging repo is located at
 
->     https://vdt.cs.wisc.edu/svn
+> <https://github.com/osg-htc/software-packaging>
 
-[Procedure for offsite users obtaining access to Subversion](http://vdt.cs.wisc.edu/internal/svn.html)
+The repo is organized as follows:
 
-Or, from a UW–Madison Computer Sciences machine:
+> `<SUBTREE>/<PACKAGE>`
 
->     file:///p/condor/workspaces/vdt/svn
+where a subtree corresponds to a set of OSG Software repos such as `24-main`, `23-upcoming`, etc.
 
-The current SVN directory housing our native package work is `$SVN/native/redhat` (where `$SVN` is one of the ways of accessing our SVN repository above). For example, to check out the current package repository via HTTPS, do:
+For example, the package directory for `xrootd` for the `osg-24-main-*` tags are located in
+`24-main/xrootd`
 
-```console
-[you@host]$ svn co https://vdt.cs.wisc.edu/svn/native/redhat
-```
+The subtree must correspond to the repos being built to.
+For example, you may not build into `osg-24-main-*` from the `23-upcoming` subtree.
 
-#### OSG-Owned Software
-
-OSG-owned software goes into GitHub under the `opensciencegrid` organization. Files are organized as the developer sees fit.
-
-It is strongly recommended that each software package include a top-level Makefile with at least the following targets:
-
-| Symbol     | Purpose                                                                               |
-|:-----------|:--------------------------------------------------------------------------------------|
-| `install`  | Install the software into final FHS locations rooted at `DESTDIR`                     |
-| `dist`     | Create a distribution source tarball (in the current section directory) for a release |
-| `upstream` | Install the distribution source tarball into the upstream source cache                |
-
-#### Packaging Top-Level Directory Organization
-
-The top levels of our Subversion directory hierarchy for packaging are as follows:
-
-> `native/redhat/<SECTION>/<PACKAGE>`
-
-where:
-
-| Symbol      | Definition                                 | Example                                                    |
-|:------------|:-------------------------------------------|:-----------------------------------------------------------|
-| `<SECTION>` | Development section                        | Standard Subversion sections like `trunk` and `branches/*` |
-| `<PACKAGE>` | Our standardized name for a source package | `ndt`                                                      |
 
 #### Package Directory Organization
 
@@ -169,11 +145,8 @@ without the prefix component, followed by the sha1sum of the file:
 
 Obtain the sha1sum by running the `sha1sum` command with the source file as an argument, i.e.
 ```console
-$ sha1sum /p/vdt/public/html/upstream/<PACKAGE>/<VERSION>/<FILE>
+$ sha1sum /osgsw/upstream/<PACKAGE>/<VERSION>/<FILE>
 ```
-
-!!! note
-    This feature requires OSG-Build 1.14.0 or later.
 
 !!! example
     The reference file for `globus-common`'s source tarball is named `epel.srpm.source` and contains:
@@ -386,14 +359,15 @@ When the OSG Software Team modifies an existing source RPM, it is referenced wit
 
 ### Build Process
 
-1.  All necessary information to create the package will be committed to the VDT source code repository (see below)
+1.  All necessary information to create the package will be committed to the
+    OSG Software Packaging repository (see below)
 2.  The [OSG build tools](../software/osg-build-tools.md) will take those files, create a source RPM, and submit it to our Koji build system
 
 Developers may use `rpmbuild` and `mock` for faster iterative development before submitting the package to Koji. `osg-build` may be used as a wrapper script around `rpmbuild` and `mock`.
 
 ### OSG Software Repository
 
-OSG Operations maintains the Yum repositories that contain our source and binary RPMs at `https://repo.opensciencegrid.org/osg/` and are mirrored at other institutions as well.
+OSG Operations maintains the Yum repositories that contain our source and binary RPMs at `https://repo.osg-htc.org/osg/` and are mirrored at other institutions as well.
 
 #### Release Levels
 

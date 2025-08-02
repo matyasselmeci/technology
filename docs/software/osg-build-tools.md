@@ -228,6 +228,8 @@ Commonly used tools
 
 These are the tools you will be using for day-to-day builds.
 
+<!-- TODO Move these docs to the osg-build repo -->
+
 ### osg-build
 
 #### Overview
