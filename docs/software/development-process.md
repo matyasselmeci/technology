@@ -1,3 +1,4 @@
+<!-- TODO This page needs an overhaul -->
 
 Software Development Process
 ============================
@@ -12,7 +13,7 @@ Overall Development Cycle
 For a typical update to an existing package, the overall development cycle is roughly as follows:
 
 1.  Download the new upstream source (tarball, source RPM, checkout) into
-    [the UW AFS upstream area](../software/rpm-development-guide.md#upstream-source-cache)
+    [the CHTC upstream area](../software/rpm-development-guide.md#upstream-source-cache)
 2.  In [a checkout of our packaging code](../software/rpm-development-guide.md#revision-control-system),
     update [the reference to the upstream file](../software/rpm-development-guide.md#upstream) and,
     as needed, [the RPM spec file](../software/rpm-development-guide.md#osg)
@@ -21,8 +22,8 @@ For a typical update to an existing package, the overall development cycle is ro
 5.  Optionally, lightly test the new RPM(s); if there are problems, redo previous steps until success
 6.  Use [osg-build](../software/osg-build-tools.md#osg-build) to perform an official build of the updated package
     (which will go into the development repos)
-7.  Perform standard developer testing of the new RPM(s) — see below for details
-8.  Obtain permission from the Software Manager to promote the package
+7.  Perform standard developer testing of the new RPMs; this generally means running the VM Universe tests - see below for details
+8.  Have another software team member review your testing and give you permission to promote the package
 9.  Promote the package to testing — see below for details
 
 Versioning Guidelines
@@ -83,12 +84,12 @@ and you will be making the same change to a package across both release series.
 We recommend using a diffing tool such as Meld (Linux) or WinMerge (Windows) that is capable of comparing
 directories and not just individual files, to make sure all the changes are carried over.
 
-This is one example workflow, using the "23-main" and "24-main" release series,
+This is one example workflow, using the "24-main" and "25-main" release series,
 and the package "xrdcl-pelican" which is identical between the two release series.
 
 1.  Make changes to `24-main/xrdcl-pelican` 
 2.  Make a scratch build (e.g. `osg-build koji --scratch 24-main/xrdcl-pelican`)
-3.  Open `23-main/xrdcl-pelican` and `24-main/xrdcl-pelican` in a diffing tool, and copy
+3.  Open `24-main/xrdcl-pelican` and `25-main/xrdcl-pelican` in a diffing tool, and copy
     over all the changes
 4.  `git add` and `git commit` the changes; committing the changes to both series in the same commit
     means you don't have to write the commit message twice,
@@ -97,8 +98,8 @@ and the package "xrdcl-pelican" which is identical between the two release serie
 6.  Make non-scratch builds; use the following procedure to submit both at the same time:
 
         :::console
+        $ osg-build koji --nowait 25-main/xrdcl-pelican
         $ osg-build koji --nowait 24-main/xrdcl-pelican
-        $ osg-build koji --nowait 23-main/xrdcl-pelican
         $ osg-koji watch-task --mine
 
 
@@ -109,11 +110,11 @@ you could do something like the following (using `xrootd` as an example):
 2.  Make a scratch build as above
 3.  Commit your changes as a "checkpoint"
 4.  Repeat 1-3 as necessary until you think you are ready for a non-scratch build
-5.  Copy your changes to `23-main` using a diffing tool as above
+5.  Copy your changes to `25-main` using a diffing tool as above
 6.  You now have two options:
 
     -   If you haven't pushed, then you can do an interactive rebase to squash your changes to
-        `23-main` and `24-main` down to one commit
+        `24-main` and `25-main` down to one commit
 
     -   If you have already pushed, get a log of the recent changes to `24-main/xrootd`:
 
@@ -121,11 +122,11 @@ you could do something like the following (using `xrootd` as an example):
             $ git --no-pager log --oneline --since='last week' --reverse -- 24-main/xrootd
 
         Copy and paste that to a text editor.
-        Then, when you write the commit message for the commit to `23-main/xrootd`,
+        Then, when you write the commit message for the commit to `24-main/xrootd`,
         reference the commits from that command.
         For example:
 
-            23-main/xrootd: Update xrootd to 5.8.4 and add various patches
+            25-main/xrootd: Update xrootd to 5.8.4 and add various patches
 
             Includes the following commits from 24-main/xrootd:
 
@@ -135,11 +136,12 @@ you could do something like the following (using `xrootd` as an example):
 
         Keeping the Git hashes will make future archaeology easier.
 
-Note that merge tracking in recent versions of SVN (1.5 or newer) should prevent commits from accidentally being merged multiple times.
-You should still look out for conflicts and examine the changes via `svn diff` before committing the merge.
 
 Testing Procedures
 ------------------
+
+!!!note
+    This section is out of date
 
 Before promoting a package to a testing repository, each build must be tested lightly from the development repos
 to make sure that it is not completely broken, thereby wasting time during acceptance testing.
@@ -221,6 +223,9 @@ Of course if they discover problems, the ticket(s) will be returned to OSG Softw
 essentially restarting the development cycle.
 
 ### Preparing a Good Promotion Request
+
+!!!note
+    This section is out of date
 
 Developers must obtain permission from the OSG Software manager to promote a package from development to testing.
 A promotion request goes into at least one affected JIRA ticket and will be answered there as well.
