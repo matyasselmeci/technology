@@ -26,21 +26,6 @@ For a typical update to an existing package, the overall development cycle is ro
 8.  Have another software team member review your testing and give you permission to promote the package
 9.  Promote the package to testing — see below for details
 
-Versioning Guidelines
----------------------
-
-OSG-owned software should contain three digits, X.Y.Z, where X represents the major version, Y the minor version,
-and Z the maintenance version.
-New releases of software should increment one of the major, minor, or maintenance according to the following guidelines:
-
--   **Major:** Major new software, typically (but not limited to) full rewrites, new architectures, major new features;
-    can certainly break backward compatibility (but should provide a smooth upgrade path). Worthy of introduction into Upcoming.
--   **Minor:** Notable changes to the software, including significant feature changes, API changes, etc.;
-    may break compatibility, but must provide an upgrade path from other versions within the same Major series.
--   **Maintenance:** Bug fixes, minor feature tweaks, etc.;
-    must not break compatibility with other versions within the same Major.Minor series.
-
-If you are unsure about which version number to increment in a software update, consult the Software Manager.
 
 Build Procedures
 ----------------
