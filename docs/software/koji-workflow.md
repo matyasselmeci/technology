@@ -9,19 +9,21 @@ Terminology
 Using and understanding the following terminology correctly will help in the reading of this document:
 
 **Package**  
-This refers to a named piece of software in the Koji database. An example would be "lcmaps".
+This refers to a named piece of software in the Koji database. An example would be "xrootd".
 
 **Build**  
 A specific version and release of a package, and an associated state. A build state may be successful (and contain RPMs), failed, or in-progress. A given build may be in one or more tags. The build is associated with the output of the latest build task with the same version and release of the package.
 
 **Tag**  
-A named set of packages and builds, parent tags, and reference to external repositories. An example would be the "osg-3.3-el6-development" tag, which contains (among others) the "lcmaps" package and the "lcmaps-1.6.6-1.1.osg33.el6" build. There is an inheritance structure to tags: by default, all packages/builds in a parent tag are added to the tag. A tag may contain a reference to (possibly inherited) external repositories; the RPMs in these repositories are added to repositories created from this tag. Examples of referenced external repositories include CentOS base, EPEL, or JPackage.
+A named set of packages and builds, parent tags, and reference to external repositories. An example would be the "osg-25-el9-development" tag, which contains (among others) the "xrootd" package and the "xrootd-5.9.1-1.2.osg25-el9" build. There is an inheritance structure to tags: by default, all packages/builds in a parent tag are added to the tag. A tag may contain a reference to (possibly inherited) external repositories; the RPMs in these repositories are added to repositories created from this tag. Examples of referenced external repositories include AlmaLinux base or EPEL.
 
 !!! note
     A tag is NOT a yum repository.
 
-**Target**  
-A target consists of a build tag and a destination tag. An example is "osg-3.3-el6", where the build tag is "osg-3.3-el6-build" and the destination tag is "osg-3.3-el6". A target is used by the build task to know what repository to build from and tag to build into.
+**Target**<br>
+A target consists of a build tag and a destination tag. An example is "osg-25-main-el9",
+where the build tag is "osg-25-main-el9" and the destination tag is "osg-25-main-el9-development".
+A target is used by the build task to know what repository to build from and tag to build into.
 
 **Task**  
 A unit of work for Koji. Several common tasks are:
@@ -84,14 +86,14 @@ Using Koji
 Before pushing package changes to the OSG Software Packaging repository, you should create a "scratch build".
 This builds an RPM from the current directory using Koji, but does not tag the resulting package.
 
-To make a scratch build, run:
+To make a scratch build and download the resulting files to your machine, run:
 
 ```console
-$ osg-build koji --scratch <PACKAGE DIRECTORY>
+$ osg-build koji --scratch --getfiles <PACKAGE DIRECTORY>
 ```
 
-To download all of the files from a scratch build, add the `--getfiles` flag;
-you may also visit the links that osg-build printed to download the files individually.
+If you do not want to download the files, omit the `--getfiles` flag.
+You may also visit the links that osg-build printed to download the files later.
 
 ### Creating a new build
 
@@ -116,39 +118,48 @@ The most recent build results are always shown on the home page of Koji:
 
 Clicking on a build result brings you to the build information page. A successful build will result in the build page having build logs, RPMs, and a SRPM.
 
-If your build isn't in the recent list, you can use the search box in the upper-right-hand corner. Type the exact package name (or use a wildcard), and it will bring up a list of all builds for that package. You can find your build from there. For example, the "lcmaps" package page is here:
+If your build isn't in the recent list, you can use the search box in the upper-right-hand corner.
+Type the exact package name (or use a wildcard), and it will bring up a list of all builds for that package.
+You can find your build from there. For example, the "xrootd" package page is here:
 
-<https://koji.osg-htc.org/koji/packageinfo?packageID=56>
+<https://koji.osg-htc.org/koji/packageinfo?packageID=89>
 
-And the lcmaps-1.6.6-1.1.osg33.el6 build is here:
+And the xrootd-5.9.1-1.2.osg25.el9 build is here:
 
-<https://koji.osg-htc.org/koji/buildinfo?buildID=7427>
+<https://koji.osg-htc.org/koji/buildinfo?buildID=18884>
 
 
 #### How to get the resulting RPM into a repository
 
 Once a package has been built, it will be signed and added to a tag, typically one of the `-development` tags.
 The build will eventually be copied and made available for installation at `repo.osg-htc.org`,
-in typically less than an hour.
-The build will be available for use as a build dependency in under five minutes.
+in typically less than half an hour.
+The build will be available for use as a build dependency in under five minutes;
+Koji will wait for the repo to be updated ("regenerated") before doing another build.
 
 The OSG repos with names ending in `-minefield` are built from the `-development` repos;
 installing RPMs from those repos pulls directly from the Koji build system.
 You may update the `-minefield` repos by running the `osg-koji regen-repo` command on the corresponding `-development` repo.
-For example, to update the `osg-minefield` repo for OSG series `24-main` on distro `el9`, run
+For example, to update the `osg-minefield` repo for OSG series `25-main` on distro `el9`, run
 ```console
-$ osg-koji regen-repo osg-24-main-el9-development
+$ osg-koji regen-repo osg-25-main-el9-development
 ```
-This typically only takes a few minutes.
+A regen-repo task will be created -- you can watch its progress in the web interface.
+
+!!!note
+  If the output you get is something like `Repo info: https://koji.osg-htc.org/koji/repoinfo?repoID=153995`,
+  it means that the build repo is already current.
+  If you still want to force repo creation, add the `--make-task` argument to the above `regen-repo` command.
+
 To do this for multiple distro versions, use a loop.
 For example:
 ```console
-$ for el in el8 el9 el10; do osg-koji regen-repo osg-24-main-${el}-development; done
+$ for el in el8 el9 el10; do osg-koji regen-repo osg-25-main-${el}-development; done
 ```
 
 !!!note
     Due to [SOFTWARE-6069](https://opensciencegrid.atlassian.net/browse/SOFTWARE-6069),
-    you must run `osg-koji regen-repo` by hand to update the `minefield` repos.
+    you may need to run `osg-koji regen-repo` by hand to update the `minefield` repos.
 
 You may check the status of regen-repo tasks in the
 [Koji web interface](https://koji.osg-htc.org/koji/tasks?method=newRepo&state=all&view=tree&order=-id).
@@ -167,7 +178,7 @@ You may check the status of regen-repo tasks in the
             this commonly indicates that an rpm repo mirror was updated and our build repo is out-of-date.
             This can be fixed by regenerating the relevant build repos for your builds.
 
-            This is usually something like `osg-3.4-el7-build` or `osg-upcoming-el7-build`;
+            This is usually something like `osg-25-main-el8-build` or `osg-24-upcoming-el9-build`;
             but you can find the exact build tag by clicking the Build Target link for the koji task,
             and whatever is listed for the Build Tag is the name of the repo to regen.
 
@@ -178,12 +189,6 @@ You may check the status of regen-repo tasks in the
 
     -   `build.log`  
         The output of the rpmbuild executable. If your package fails to compile, the reason will show up here.
-
--   One input to the buildArch task is a repository, which is based on a Koji tag. If the repository hasn't been recreated for a dependency you need (for example, when kojira isn't working), you may not have the right RPMs available in your build root.
-    -   One common issue is building a chain of dependencies. For example, suppose build B depends on the results of build A. If you build A then build B immediately, B will likely fail. This is because A is not in the repository that B uses. The proper string of events building A, starting the regeneration of the destination and build repo (which should happen in a few minutes of the build A task completing), then submitting build task B.
-
-        !!! note
-            if you submit build task B while the build repository task is open, it will not start until the build task has finished.
 
 - Other errors
 
@@ -217,11 +222,13 @@ If you want to promote a specific version:
 &lt;BUILD NAME&gt; is a full `name-version-revision.disttag` such as `gratia-probe-1.17.0-2.osg33.el6`.
 
 
-&lt;OSGVER&gt; is the OSG major version that you are promoting for (e.g. `3.4`).
+&lt;OSGVER&gt; is the OSG major version that you are promoting for (e.g. `24`).
 
-`osg-promote` will promote both the el6 and el7 builds of a package. After promoting, copy and paste the JIRA code `osg-promote` produces into the JIRA ticket that you are working on.
+`osg-promote` will promote the builds of a package for all distro versions (el8, el9, etc.).
+After promoting, copy and paste the JIRA code `osg-promote` produces into the JIRA ticket that you are working on.
 
- For `osg-promote`, you may omit the `.osg34.el6` or `.osg34.el7`; the script will add the appropriate disttag on.
+For `osg-promote`, you may omit the dist tag (e.g. `.osg25.el9`);
+the script will add the appropriate disttag on.
 
 See [OSG Build Tools](../software/osg-build-tools.md) for full details on `osg-promote`.
 
