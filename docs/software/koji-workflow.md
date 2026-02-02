@@ -8,13 +8,13 @@ Terminology
 
 Using and understanding the following terminology correctly will help in the reading of this document:
 
-**Package**  
+**Package**<br>
 This refers to a named piece of software in the Koji database. An example would be "xrootd".
 
-**Build**  
+**Build**<br>
 A specific version and release of a package, and an associated state. A build state may be successful (and contain RPMs), failed, or in-progress. A given build may be in one or more tags. The build is associated with the output of the latest build task with the same version and release of the package.
 
-**Tag**  
+**Tag**<br>
 A named set of packages and builds, parent tags, and reference to external repositories. An example would be the "osg-25-el9-development" tag, which contains (among others) the "xrootd" package and the "xrootd-5.9.1-1.2.osg25-el9" build. There is an inheritance structure to tags: by default, all packages/builds in a parent tag are added to the tag. A tag may contain a reference to (possibly inherited) external repositories; the RPMs in these repositories are added to repositories created from this tag. Examples of referenced external repositories include AlmaLinux base or EPEL.
 
 !!! note
@@ -25,7 +25,7 @@ A target consists of a build tag and a destination tag. An example is "osg-25-ma
 where the build tag is "osg-25-main-el9" and the destination tag is "osg-25-main-el9-development".
 A target is used by the build task to know what repository to build from and tag to build into.
 
-**Task**  
+**Task**<br>
 A unit of work for Koji. Several common tasks are:
 
 -   build  
@@ -43,10 +43,10 @@ A unit of work for Koji. Several common tasks are:
 -   newRepo  
     This creates a new repository from a given tag.
 
-**Build artifacts**  
+**Build artifacts**<br>
 The results of a buildArch task. Their metadata are recorded in the Koji database, and files are saved to disk. Metadata may include checksums, timestamps, and who initiated the task. Artifacts may include RPMs, SRPMs, and build logs.
 
-**Repository**  
+**Repository**<br>
 A yum repository created from the contents of a tag at a specific point in time. By default, the yum repository will contain all successful, non-blocked builds in the tag, plus all RPMs in the external repositories for the tag.
 
 
@@ -225,7 +225,7 @@ If you want to promote a specific version:
 &lt;OSGVER&gt; is the OSG major version that you are promoting for (e.g. `24`).
 
 `osg-promote` will promote the builds of a package for all distro versions (el8, el9, etc.).
-After promoting, copy and paste the JIRA code `osg-promote` produces into the JIRA ticket that you are working on.
+After promoting, copy and paste the Jira code `osg-promote` produces into the Jira ticket that you are working on.
 
 For `osg-promote`, you may omit the dist tag (e.g. `.osg25.el9`);
 the script will add the appropriate disttag on.
