@@ -125,9 +125,6 @@ you could do something like the following (using `xrootd` as an example):
 Testing Procedures
 ------------------
 
-!!!note
-    This section is out of date
-
 Before promoting a package to a testing repository, each build must be tested lightly from the development repos
 to make sure that it is not completely broken, thereby wasting time during acceptance testing.
 Normally, the person who builds a package performs the development testing.
@@ -139,46 +136,6 @@ Testing should be performed for all distro versions the package is built for,
 and all supported release series.
 In addition to a fresh installation, it is also important to test upgrades
 from a previous version of the software.
-
-### The "Standard 4" tests, defined
-
-In most cases, the Software manager will ask a developer to perform the “standard 4” tests
-on an updated package in a release series before promotion.
-This is a shorthand description for a standard set of 4 test runs:
-
--   Fresh install on el6
--   Fresh install on el7
--   Update install on el6
--   Update install on el7
-
-An “update install” is a fresh install of the relevant package (or better yet, metapackage that includes it)
-**from the production repository**, followed by an update to the new build **from the development repository**.
-
-For each test run, the amount of functional testing required will vary.
-
--   For very simple changes, it may be sufficient to verify that each installation succeeds and that the expected files are in place
--   For some changes, it may be sufficient to run osg-test on the resulting installation
--   For some changes, it will be necessary to perform careful functional tests of the affected component(s)
-
-If you have questions, check with the Software Manager to determine the amount of testing that is required per test run.
-
-### The "Cross-Series" test, defined
-
-The cross-series test may need to be run for packages that have been built for multiple release series of the OSG software stack (i.e. 3.4 and 3.5):
-
--   On el7, install from the 3.4 repositories, then update from the 3.5 repositories
-
-Viewed another way, this test is similar to the update installs, above, except from 3.4-release to 3.5-development.
-
-### The "Long Tail" tests, defined
-
-These tests may need to be run when updating a package that's also in the old, unsupported (3.3) branch. They will consist of:
-
--   Install from 3.3-release and update to 3.5-development (on el7 only)
-
-### The "full set of tests", defined
-
-All of the tests mentioned above.
 
 ### VM Universe (VMU) tests
 
@@ -192,7 +149,7 @@ you should run the VMU tests to validate the RPM installation and upgrade proces
 Make sure you meet the [pre-requisites](https://github.com/opensciencegrid/vm-test-runs) required
 to submit VM Universe jobs on `osgsw-ap.chtc.wisc.edu`.
 If you do not have permission to submit VMU runs,
-mention "@Software" on the Jira ticket and a Software Team member will run the tests for you.
+mention "@Software and Release" on the Jira ticket and a Software Team member will run the tests for you.
 
 After that's done, prepare the test suite with a comment describing the test run.
 For example, if you were testing a new `htcondor-ce` package:
