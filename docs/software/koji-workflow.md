@@ -53,7 +53,7 @@ Obtaining Access
 
 Building OSG packages in Koji requires these privileges:
 
-- access to the OSG subversion repository at https://vdt.cs.wisc.edu/svn
+- access to the OSG Software Packaging repository at https://github.com/osg-htc/software-packaging
 - access to `osgsw-ap.chtc.wisc.edu` for uploading to the upstream sources directory
 - access to the Koji service via a Kerberos credential
 
@@ -95,11 +95,11 @@ you may also visit the links that osg-build printed to download the files indivi
 
 ### Creating a new build
 
-We create a new build in Koji from the package's directory in OSG Software subversion.
+We create a new build in Koji from the package's directory in [OSG Software Packaging repository](https://github.com/osg-htc/software-packaging).
 
 If a successful build already exists in Koji (regardless of whether it is in the tag you use), you cannot replace the build. Two builds are the same if they have the same NVR (Name-Version-Release). You *can* do a "scratch" build, which recompiles, but the results are not added to the tag. This is useful for experimenting with koji.
 
-To do a build, execute the following command from within the OSG Software subversion checkout:
+To do a build, execute the following command from within an up-to-date clone of the repository:
 
 ```console
 [you@host]$ osg-build koji <PACKAGE NAME>

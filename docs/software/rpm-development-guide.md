@@ -23,7 +23,7 @@ We encourage all interested parties to contribute to OSG Software, and all the i
 
 -   To participate in the packaging community: You must subscribe to the
     [software-discuss@osg-htc.org](https://groups.google.com/u/1/a/osg-htc.org/g/software-discuss/members) email list.
--   To create and edit packages: [Obtain access to VDT SVN](http://vdt.cs.wisc.edu/internal/svn.html).
+-   To create and edit packages: [Obtain access to the OSG Software-Packaging repo](https://github.com/osg-htc/software-packaging).
 -   To upload new source tarballs: You must have a CHTC account with write access to the OSG source tarball directory.
 -   To build using the OSG's Koji build system, you must be able to get a Kerberos ticket with either an @AD.WISC.EDU or @FNAL.GOV principal;
     Send email to <help@osg-htc.org> to request access to the build system.
@@ -84,50 +84,26 @@ See the [upstream dir info](#upstream) for more information.
 
 ### Revision Control System
 
-All packages that the OSG Software Team releases are checked into our Subversion repository.
+All packages that the OSG Software Team releases are checked into the Software Packaging repository.
 
-#### Subversion Access
+#### Software Packaging Repo Access
 
-Our Subversion repository is located at:
+The OSG Software Packaging repo is located at
 
->     https://vdt.cs.wisc.edu/svn
+> <https://github.com/osg-htc/software-packaging>
 
-[Procedure for offsite users obtaining access to Subversion](http://vdt.cs.wisc.edu/internal/svn.html)
+The repo is organized as follows:
 
-Or, from a UW–Madison Computer Sciences machine:
+> `<SUBTREE>/<PACKAGE>`
 
->     file:///p/condor/workspaces/vdt/svn
+where a subtree corresponds to a set of OSG Software repos such as `25-main`, `24-upcoming`, etc.
 
-The current SVN directory housing our native package work is `$SVN/native/redhat` (where `$SVN` is one of the ways of accessing our SVN repository above). For example, to check out the current package repository via HTTPS, do:
+For example, the package directory for `xrootd` for the `osg-25-main-*` tags are located in
+`25-main/xrootd`
 
-```console
-[you@host]$ svn co https://vdt.cs.wisc.edu/svn/native/redhat
-```
+The subtree must correspond to the repos being built to.
+For example, you may not build into `osg-25-main-*` from the `24-upcoming` subtree.
 
-#### OSG-Owned Software
-
-OSG-owned software goes into GitHub under the `opensciencegrid` organization. Files are organized as the developer sees fit.
-
-It is strongly recommended that each software package include a top-level Makefile with at least the following targets:
-
-| Symbol     | Purpose                                                                               |
-|:-----------|:--------------------------------------------------------------------------------------|
-| `install`  | Install the software into final FHS locations rooted at `DESTDIR`                     |
-| `dist`     | Create a distribution source tarball (in the current section directory) for a release |
-| `upstream` | Install the distribution source tarball into the upstream source cache                |
-
-#### Packaging Top-Level Directory Organization
-
-The top levels of our Subversion directory hierarchy for packaging are as follows:
-
-> `native/redhat/<SECTION>/<PACKAGE>`
-
-where:
-
-| Symbol      | Definition                                 | Example                                                    |
-|:------------|:-------------------------------------------|:-----------------------------------------------------------|
-| `<SECTION>` | Development section                        | Standard Subversion sections like `trunk` and `branches/*` |
-| `<PACKAGE>` | Our standardized name for a source package | `ndt`                                                      |
 
 #### Package Directory Organization
 
@@ -386,7 +362,8 @@ When the OSG Software Team modifies an existing source RPM, it is referenced wit
 
 ### Build Process
 
-1.  All necessary information to create the package will be committed to the VDT source code repository (see below)
+1.  All necessary information to create the package will be committed to the
+    OSG Software Packaging repository (see below)
 2.  The [OSG build tools](../software/osg-build-tools.md) will take those files, create a source RPM, and submit it to our Koji build system
 
 Developers may use `rpmbuild` and `mock` for faster iterative development before submitting the package to Koji. `osg-build` may be used as a wrapper script around `rpmbuild` and `mock`.

@@ -81,11 +81,12 @@ git clone https://github.com/osg-htc/docker-osg-build
 ```
 
 Next, run the `initbuilder` script, giving it the directory under which the repo containing the software packaging is.
-For example, if you have your checkout of the VDT SVN repo under `~/native/redhat`, run
+For example, if you have your checkout of the [https://github.com/osg-htc/software-packaging](software-packaging repo)
+under `~/software-packaging`, run
 
 ```
 cd docker-osg-build
-./initbuilder ~/native/redhat
+./initbuilder ~/software-packaging
 ```
 Answer the configuration questions from initbuilder.
 
