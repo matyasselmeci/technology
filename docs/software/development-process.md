@@ -135,6 +135,11 @@ Normally, the person who builds a package performs the development testing.
 **If you are not doing your own development testing for a package**, contact the Software Manager
 and/or leave a comment in the associated ticket; otherwise, your package may never be promoted to testing and hence never released.
 
+Testing should be performed for all distro versions the package is built for,
+and all supported release series.
+In addition to a fresh installation, it is also important to test upgrades
+from a previous version of the software.
+
 ### The "Standard 4" tests, defined
 
 In most cases, the Software manager will ask a developer to perform the “standard 4” tests
@@ -175,17 +180,25 @@ These tests may need to be run when updating a package that's also in the old, u
 
 All of the tests mentioned above.
 
-### Running the tests in VM Universe
+### VM Universe (VMU) tests
 
-In the case that the package you're testing is covered by osg-tested-internal,
-you can run the full set of tests in a manual VM universe test run.
+These are OSG Software's automated tests, which run in VMs powered by HTCondor's VM universe.
+Each run tests installation and/or upgrades of the listed software,
+using the [OSG-Test test suite](https://github.com/opensciencegrid/osg-test) of integration tests.
+
+Even if there are no functionality tests for your package in OSG-Test,
+you should run the VMU tests to validate the RPM installation and upgrade process.
+
 Make sure you meet the [pre-requisites](https://github.com/opensciencegrid/vm-test-runs) required
-to submit VM Universe jobs on `osghost.chtc.wisc.edu`.
+to submit VM Universe jobs on `osgsw-ap.chtc.wisc.edu`.
+If you do not have permission to submit VMU runs,
+mention "@Software" on the Jira ticket and a Software Team member will run the tests for you.
+
 After that's done, prepare the test suite with a comment describing the test run.
 For example, if you were testing a new `htcondor-ce` package:
 
 ``` console
-osg-run-tests 'Testing htcondor-ce-3.2.1-1'
+osg-run-tests 'Testing htcondor-ce-3.2.1-1 (SOFTWARE-####)'
 ```
 
 After you `cd` into the directory specified in the output of the previous command,
@@ -195,8 +208,10 @@ i.e. clean installs, upgrade installs and upgrade installs between OSG versions.
 Once you're satisfied with your list of parameters, submit the dag:
 
 ``` console
-condor_submit_dag master-run.dag
+./master-run.sh
 ```
+
+
 
 Promoting a Package to Testing
 ------------------------------
