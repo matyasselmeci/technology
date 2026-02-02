@@ -181,48 +181,39 @@ essentially restarting the development cycle.
 
 ### Preparing a Good Promotion Request
 
-!!!note
-    This section is out of date
-
 Developers must obtain permission from the OSG Software manager to promote a package from development to testing.
-A promotion request goes into at least one affected JIRA ticket and will be answered there as well.
+A promotion request goes into at least one affected Jira ticket and will be answered there as well.
 Below are some tips for writing a good promotion request:
 
 -   Make sure that relevant information about goals, history, and resolution is in the associated ticket(s)
--   Include globs for the NVRs to be promoted (or a detailed list, if it is that complicated, which it almost never is)
--   If you ran automated tests:
-    -   Link to the results page(s)
-    -   Verify that relevant tests ran successfully (as opposed to being skipped or failing) – briefly summarize your findings
-    -   Note whether the automated tests are just regression tests or actually test the current change(s)
-    -   If there are **any** failures, explain why they are not important to the promotion request
--   If you ran manual tests:
-    -   Summarize your tests and findings
-    -   If there were failures, explain why they are not important to the promotion request
--   If there are critical build dependencies that we typically check, include reports from the `built-against-pkgs` tool
-    -   Note: This step is really just for known, specific cases, like the {HTCondor, BLAHP} set
-    -   Occasionally, the OSG Software manager will request the tool to be run for other cases
--   If other packages depend on the to-be-promoted package, explain whether the dependent packages must be rebuilt or, if not, why not
+-   List the NVRs of the builds to be promoted, as well as the tags they will be promoted into.
+    If a version was not built for a particular platform, mention why not.
+-   Link to the results page of the VMU tests.
+    Make sure the tests actually installed the version to be promoted.
+    Explain any failures.
+-   If you ran manual tests, summarize your tests and findings, and explain any failures.
 
-For example (hypothetical promotion request for HTCondor-CE):
+For example (hypothetical promotion request for XRootD):
 
-> May I promote `htcondor-ce-2.3.4-2.osg3*.el*`? I ran a complete set of automated tests <LINK THE PRECEDING TEXT OR SEPARATELY HERE\>;
-> the HTCondor-CE tests ran and passed in all cases. There were some spurious failures of RSV in the All condition for RHEL 6,
-> but this is a known failure case that is independent of HTCondor-CE. I also did a few spot checks manually
-> (one VM each for SL 6 and SL 7), and in each case setting `use_frobnosticator = true` in the configuration resulted in
-> the expected behavior as defined in the description field above.
-> The `built-against-pkgs` tool shows that I built against all the latest HTCondor and BLAHP builds, see below.
-> <JIRA-formatted table comes after\>
+> VMU test results are at <LINK TO TEST RESULTS PAGE\>;
+> tests passed except for StashCache tests on EL10 because the package is
+> not available on that platform.  I tested turning on the new knob in a container
+> and was able to pull a file from the server successfully.
+> @Software and Release, permission to promote `xrootd-5.9.9-9` to `24-main-testing`
+> and `25-main-testing`?
 
 ### Promoting
 
 Follow these steps to request promotion, promote a package, and note the promotion in JIRA:
 
-1.  Make sure the package update has at least one associated JIRA ticket;
-    if there is no ticket, at least create one for releasing the package(s)
-2.  Obtain permission to promote the package(s) from the Software Manager (see above)
+1.  Make sure the package update has at least one associated Jira ticket;
+    if there is no ticket, create one for releasing the package(s).
+2.  Obtain permission to promote the package(s) from one of the Software Team members,
+    by mentioning "@Software and Release" in the Jira ticket.
 3.  Use [osg-promote](../software/osg-build-tools.md#osg-promote) to promote the package(s) from development to testing
-4.  Comment on the associated JIRA ticket(s) with osg-promote's JIRA-formatted output (or at least the build NVRs) and,
-    if you know, suggestions for acceptance testing
-1.  Update the JIRA ticket description with a bulleted list describing changes in the promoted version(s) compared to
-    the currently released version(s)
-5.  Mark each associated JIRA ticket as “Ready For Testing”
+4.  Comment on the associated Jira ticket(s) with osg-promote's Jira-formatted output (or at least the build NVRs) and,
+    if you know, suggestions for acceptance testing.
+6.  Update the Jira ticket description with a short blurb about the important changes in the new version vs. the old version,
+    so it can be used in the release notes.
+7.  Mark the Jira ticket for the package as “Ready For Testing”;
+    tickets related to this version (e.g. for specific changes) should also be marked “Ready For Testing”.
